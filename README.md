@@ -35,6 +35,10 @@ Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslExceptio
 
 ### Configurações Iniciais do Projeto
 
+> No arquivo **config > app.php** alterar as configurações de local e timezone
+- 'defaultLocale' => env('APP_DEFAULT_LOCALE', 'pt_BR')
+- 'defaultTimezone' => env('APP_DEFAULT_TIMEZONE', 'America/Sao_Paulo')
+
 > No arquivo **config > app_local.php** alterar configurações de banco de dados, definindo host, username, password e database
 
 ----
