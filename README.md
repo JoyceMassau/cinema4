@@ -93,9 +93,15 @@ php7 "%lib%cake.php" %*
 ### Migrando Layouts
 
 > O procedimento basicamente é pegar os arquivos .CTP do projeto na versão antiga e renomear para .PHP
-- Copiar o arquivo **View > Layouts > bootstrap.ctp** do projeto antigo para do novo projeto **templates > layout** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
+- Copiar o arquivo **View > Layouts > bootstrap.ctp** do projeto antigo para **templates > layout** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
 > Repetir o procedimento para o arquivo **View > Layouts > login.ctp** do projeto antigo
 
+
+### Migrando Views do CRUD
+
+- Copiar os arquivos de view de cada CRUD, por exemplo, copiar o **View > Generos > add.ctp** do projeto antigo para **templates > Generos** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
+
+> Vamos copiar o elemento abstrato em **View > Elements > formCreate.ctp** do projeto antigo para **templates > element** do projeto novo
 
 ----
 

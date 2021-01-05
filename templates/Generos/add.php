@@ -1,27 +1,14 @@
 <?php
-/**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\Genero $genero
- */
-?>
-<div class="row">
-    <aside class="column">
-        <div class="side-nav">
-            <h4 class="heading"><?= __('Actions') ?></h4>
-            <?= $this->Html->link(__('List Generos'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-        </div>
-    </aside>
-    <div class="column-responsive column-80">
-        <div class="generos form content">
-            <?= $this->Form->create($genero) ?>
-            <fieldset>
-                <legend><?= __('Add Genero') ?></legend>
-                <?php
-                    echo $this->Form->control('nome');
-                ?>
-            </fieldset>
-            <?= $this->Form->button(__('Submit')) ?>
-            <?= $this->Form->end() ?>
-        </div>
-    </div>
-</div>
+$this->extend('/Common/form');
+
+$this->assign('title', 'Novo Gênero');
+
+$formFields = $this->element('formCreate');
+$formFields .= $this->Form->input('Genero.nome', array(
+    'type' => 'text',
+    'label' => array('text' => 'Gênero'),
+    'div' => array('class' => 'form-group col-md-6'),
+    'class' => 'form-control',
+));
+
+$this->assign('formFields', $formFields);
