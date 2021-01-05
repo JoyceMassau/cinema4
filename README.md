@@ -86,6 +86,46 @@ php7 "%lib%cake.php" %*
 - .\bin\cake bake all Generos
 - .\bin\cake bake all Usuarios
 
+----
+
+## Migração do CakePHP 2 Para o CakePHP 4
+
+### Migrando Layouts
+
+> O procedimento basicamente é pegar os arquivos .CTP do projeto na versão antiga e renomear para .PHP
+- Copiar o arquivo **View > Layouts > bootstrap.ctp** do projeto antigo para **templates > layout** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
+> Repetir o procedimento para o arquivo **View > Layouts > login.ctp** do projeto antigo
+
+
+### Migrando Views do CRUD
+
+- Copiar os arquivos de view de cada CRUD, por exemplo, copiar o **View > Generos > add.ctp** do projeto antigo para **templates > Generos** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
+
+> Vamos copiar o elemento abstrato em **View > Elements > formCreate.ctp** do projeto antigo para **templates > element** do projeto novo
+
+> **ANTES,** No create do formulário do arquivo **formCreate** passávamos o primeiro parâmetro do create como False ou o nome do Model
+
+```php
+$formCreate = $this->Form->create(false, array('inputDefaults' => $inputDefaults));
+```
+
+> Agora, devemos passar uma entidade ou null. Criaremos uma variável chamada Entidade e em cima dela verificaremos que se existir uma informação dentro da entidade, ele vai mandar a entidade, senão, manda como null
+
+```php
+$entity = !isset($entity) ? null : $entity;
+$formCreate = $this->Form->create($entity, array('inputDefaults' => $inputDefaults));
+```
+
+> Na nova versão do CakePHP, a propriedade inputDefault que utilizávamos no formCreate não existe mais. Na documentação, em https://book.cakephp.org/4/en/views/helpers/form.html#customizing-the-templates-formhelper-uses podemos visualizar formas de customizar esse template. Para este caso, utilizaremos um modelo pronto que vai manter as configurações utilizadas antes, com o novo padrão que o CakePHP espera
+
+> Em lugar do parâmetro **array('inputDefaults' => $inputDefaults)** colocaremos algumas options e se houver alguma configuração extra, ele sobrepõe, senão ele mantém as do formulário formCreate.php
+
+```php
+$options = !isset($options) ? compact('template') : array_merge(compact('templates'), $options);
+$formCreate = $this->Form->create($entity,$options);
+```
+
+
 
 ----
 
