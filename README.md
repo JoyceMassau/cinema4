@@ -41,6 +41,27 @@ Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslExceptio
 
 > No arquivo **config > app_local.php** alterar configurações de banco de dados, definindo host, username, password e database
 
+> No arquivo **config > bootstrap.php** incluir configuração para formatação de datas e valores numéricos
+
+```php
+use Cake\Database\TypeFactory;
+```
+
+> Mais para o final do arquivo **config > bootstrap.php**, insira as linhas
+
+```php
+TypeFactory::build('date')->useLocaleParser()->setLocaleFormat('dd/MM/yyyy');
+TypeFactory::build('datetime')->useLocaleParser()->setLocaleFormat('dd/MM/yyyy hh:mm:ss');
+TypeFactory::build('float')->useLocaleParser();
+TypeFactory::build('decimal')->useLocaleParser();
+```
+
+> Para garantir que o framework utilizará a localização corretamente, abaixo da linha que é definido o default_locale, inseriremos o seguinte
+
+```php
+setlocale(LC_ALL, 'pt_BR', 'pt_BR.iso-8859-1', 'pt_BR.utf-8', 'portuguese');
+```
+
 ----
 
 # CakePHP Application Skeleton
