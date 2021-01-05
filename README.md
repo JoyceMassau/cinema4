@@ -64,6 +64,31 @@ setlocale(LC_ALL, 'pt_BR', 'pt_BR.iso-8859-1', 'pt_BR.utf-8', 'portuguese');
 
 ----
 
+### Utilizando o CakePHP Bake
+
+> Caso utilize mais de uma versão do php na mesma máquina, é preciso alterar o arquivo **bin > cake.bat** mudando o nome do executavél de "php" para "php7", por exemplo, conforme abaixo
+
+```php
+php7 "%lib%cake.php" %*
+```
+
+> No PowerShell, teste se o cake está funcionando via CLI, indo no diretório de seu projeto e digitando
+- .\bin\cake
+
+> Para testar se CakePHP Bake está funcionando, digitar no PowerShell. Ao fazer isso ele já vai listar todas as entidades que ele localizar do Banco de Dados
+- .\bin\cake bake all
+
+> Para que o CakePHP Bake crie os arquivos de CRUD de cada entidade, digitar no PowerShell
+- .\bin\cake bake all Ators
+- .\bin\cake bake all AtorsFilmes
+- .\bin\cake bake all Criticas
+- .\bin\cake bake all Filmes
+- .\bin\cake bake all Generos
+- .\bin\cake bake all Usuarios
+
+
+----
+
 # CakePHP Application Skeleton
 
 [![Build Status](https://img.shields.io/github/workflow/status/cakephp/app/CakePHP%20App%20CI/master?style=flat-square)](https://github.com/cakephp/app/actions)
