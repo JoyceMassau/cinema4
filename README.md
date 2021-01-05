@@ -1,3 +1,38 @@
+# Cinema4
+
+Roteiro de migração do CakePHP 2 para o CakePHP 4 utilizando CRUD de projeto cinema.
+
+----
+
+### Correção de Erros na Instalação do Cake Versão 4
+
+PS: Para utilizar esta versão do cake é necessário versão igual ou superior a 7.2.0 do PHP
+
+Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslException] The openssl extension is required for SSL/TLS protection but is not available. If you can not enable the openssl ex tension, you can disable this error, at your own risk, by setting the 'disable-tls' option to true."
+
+> Abra o diretório em que se instalou o php7
+- Exemplo: H:\xampp\php7
+
+> Descomentar essas linhas no php.ini
+- extension_dir = "ext"
+- extension=openssl
+
+> Salvar arquivos
+> Criar uma cópia do arquivo php.ini-development, e alterar o nome do arquivo cópia para "php.ini"
+> Fechar xampp e abrir novamente
+>Rodar novamente no terminal o comando para criar o projeto
+- Exemplo: php7 H:\xampp\php7\composer.phar create-project --prefer-dist cakephp/app:~4.0 cinema4
+
+> No php.ini, descomentar todas essas extensões
+- mbstring
+- mysqi
+- openssl
+- pdo_sqlite
+- pdo_mysql
+- intl
+
+----
+
 # CakePHP Application Skeleton
 
 [![Build Status](https://img.shields.io/github/workflow/status/cakephp/app/CakePHP%20App%20CI/master?style=flat-square)](https://github.com/cakephp/app/actions)
