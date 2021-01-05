@@ -20,7 +20,7 @@ Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslExceptio
 > Salvar arquivos
 > Criar uma cópia do arquivo php.ini-development, e alterar o nome do arquivo cópia para "php.ini"
 > Fechar xampp e abrir novamente
->Rodar novamente no terminal o comando para criar o projeto
+> Rodar novamente no terminal o comando para criar o projeto
 - Exemplo: php7 H:\xampp\php7\composer.phar create-project --prefer-dist cakephp/app:~4.0 cinema4
 
 > No php.ini, descomentar todas essas extensões
@@ -30,6 +30,37 @@ Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslExceptio
 - pdo_sqlite
 - pdo_mysql
 - intl
+
+----
+
+### Configurações Iniciais do Projeto
+
+> No arquivo **config > app.php** alterar as configurações de local e timezone
+- 'defaultLocale' => env('APP_DEFAULT_LOCALE', 'pt_BR')
+- 'defaultTimezone' => env('APP_DEFAULT_TIMEZONE', 'America/Sao_Paulo')
+
+> No arquivo **config > app_local.php** alterar configurações de banco de dados, definindo host, username, password e database
+
+> No arquivo **config > bootstrap.php** incluir configuração para formatação de datas e valores numéricos
+
+```php
+use Cake\Database\TypeFactory;
+```
+
+> Mais para o final do arquivo **config > bootstrap.php**, insira as linhas
+
+```php
+TypeFactory::build('date')->useLocaleParser()->setLocaleFormat('dd/MM/yyyy');
+TypeFactory::build('datetime')->useLocaleParser()->setLocaleFormat('dd/MM/yyyy hh:mm:ss');
+TypeFactory::build('float')->useLocaleParser();
+TypeFactory::build('decimal')->useLocaleParser();
+```
+
+> Para garantir que o framework utilizará a localização corretamente, abaixo da linha que é definido o default_locale, inseriremos o seguinte
+
+```php
+setlocale(LC_ALL, 'pt_BR', 'pt_BR.iso-8859-1', 'pt_BR.utf-8', 'portuguese');
+```
 
 ----
 
