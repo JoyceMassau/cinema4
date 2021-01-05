@@ -20,7 +20,7 @@ Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslExceptio
 > Salvar arquivos
 > Criar uma cópia do arquivo php.ini-development, e alterar o nome do arquivo cópia para "php.ini"
 > Fechar xampp e abrir novamente
->Rodar novamente no terminal o comando para criar o projeto
+> Rodar novamente no terminal o comando para criar o projeto
 - Exemplo: php7 H:\xampp\php7\composer.phar create-project --prefer-dist cakephp/app:~4.0 cinema4
 
 > No php.ini, descomentar todas essas extensões
@@ -30,6 +30,12 @@ Se ocorrer erro na instalação com composer: "[Composer\Exception\NoSslExceptio
 - pdo_sqlite
 - pdo_mysql
 - intl
+
+----
+
+### Configurações Iniciais do Projeto
+
+> No arquivo **config > app_local.php** alterar configurações de banco de dados, definindo host, username, password e database
 
 ----
 
