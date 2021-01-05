@@ -86,6 +86,16 @@ php7 "%lib%cake.php" %*
 - .\bin\cake bake all Generos
 - .\bin\cake bake all Usuarios
 
+----
+
+## Migração do CakePHP 2 Para o CakePHP 4
+
+### Migrando Layouts
+
+> O procedimento basicamente é pegar os arquivos .CTP do projeto na versão antiga e renomear para .PHP
+- Copiar o arquivo **View > Layouts > bootstrap.ctp** do projeto antigo para do novo projeto **templates > layout** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
+> Repetir o procedimento para o arquivo **View > Layouts > login.ctp** do projeto antigo
+
 
 ----
 
