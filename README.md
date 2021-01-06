@@ -265,6 +265,50 @@ depois
 $formFields .= $this->Form->control('nome');
 ```
 
+#### Exemplo de migração de arquivo index, do CRUD de Gêneros
+
+> Na nova versão do cake, os parâmetros de class e de div dos inputs não vão mais funcionar, sendo necessário passar um parâmetro de templates no array
+
+antes
+
+```php
+$searchFields = $this->Form->input('Genero.nome', array(
+    'required' => false,
+    'label' => array('text' => 'Nome', 'class' => 'sr-only'),
+    'class' => 'form-control mb-2 mr-sm-2',
+    'div' => false,
+    'placeholder' => 'Nome...'
+));
+```
+
+depois
+
+```php
+$searchFields = $this->Form->control('nome', array(
+    'required' => false,
+    'label' => array('text' => 'Nome', 'class' => 'sr-only'),
+    'templates' => [
+        'input' => '<input type="{{type}}" name="{{name}}" class="form-control mb-2 mr-sm-2"{{attrs}}/>',
+    ],
+    'placeholder' => 'Nome...'
+));
+```
+
+> Alteração no link
+
+antes 
+
+```php
+$editLink = $this->Js->link('Alterar', '/generos/edit/' . $genero['Genero']['id'], array('update' => '#content'));
+```
+
+agora
+
+```php
+$editLink = $this->Html->link('Alterar', ['action' => 'edit', $genero->id], array('update' => '#content'));
+```
+
+
 ----
 
 # CakePHP Application Skeleton
