@@ -16,7 +16,7 @@ class GenerosController extends AppController
         $nome = '';
         if ($this->request->is('post')) {
             $nome = $this->request->getData('nome');
-            $this->Session->write('Genero.nome', $nome);
+            $this->request->getSession()->write('nome', $nome);
         } else {
             $nome = $this->Session->read('Genero.nome');
             $this->request->data('Genero.nome', $nome);

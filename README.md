@@ -414,7 +414,19 @@ public function getControllerName() {
 }
 ```
 
+> Para guardar a Sessão
 
+antes
+
+```php
+$this->Session->write('Genero.nome', $nome);
+```
+
+agora
+
+```php
+$this->request->getSession()->write('nome', $nome);
+```
 ----
 
 # CakePHP Application Skeleton
