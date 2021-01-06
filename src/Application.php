@@ -44,7 +44,7 @@ class Application extends BaseApplication
      */
     public function bootstrap(): void
     {
-        $this->addPlugin('Pdf');
+        // $this->addPlugin('Pdf');
 
         // Call parent to load bootstrap from files.
         parent::bootstrap();
