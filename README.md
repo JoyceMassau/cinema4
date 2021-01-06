@@ -138,21 +138,116 @@ $actionName = $this->request->getparam('action');
 
 > Não existe mais o Helper **this->js**, precisando ser substituído. Abaixo, um exemplo de substituíção de como ficou o submit do botão
 
+antes
+
 ```php
 $form .= $this->Js->submit('Gravar', array('class' => 'btn btn-success mr-3', 'div' => false, 'update' => '#content'));
+```
 
+agora
+
+```php
 $form .= $this->Form->submit('Gravar', array('class' => 'btn btn-success mr-3', 'div' => false, 'update' => '#content'));
 ```
 
 > Um exemplo de substituíção de como ficou o link do botão antes e depois do Helper **this->js** e uma refatoração para não precisar mais concatenar o botão com o nome do controller. Antes os links estavam como Js para poder utilizar o Ajax, porém isso mudou nessa nova versão do CakePHP e será abordado posteriormente
 
+antes
+
 ```php
 $form .= $this->Js->link('Voltar', '/' . $controllerName, array('class' => 'btn btn-secondary', 'update' => '#content'));
+```
 
+agora
+
+```php
 $form .= $this->Html->link('Voltar', ['action' => 'index'], array('class' => 'btn btn-secondary', 'update' => '#content'));
 ```
 
+#### Arquivo templates > Common > index.php
 
+> O elemento de criação do formulário irá mudar com a reformulação do código, conforme abaixo
+
+antes
+
+```php
+$filtro = $this->Form->create(false, array('class' => 'form-inline'));
+```
+
+agora
+
+```php
+$filtro = $this->element('formCreate', ['options' => ['class' => 'form-inline']]);
+```
+
+> Para alterar o controle de paginação
+
+antes
+
+```php
+$this->Paginator->options(array('update' => '#content'));
+$links = array(
+    $this->Paginator->first('Primeira', array('class' => 'page-link')),
+    $this->Paginator->prev('Anterior', array('class' => 'page-link')),
+    $this->Paginator->next('Próxima', array('class' => 'page-link')),
+    $this->Paginator->last('Última', array('class' => 'page-link'))
+);
+```
+
+agora
+
+```php
+$this->Paginator->setTemplates([
+    'first' => '<a href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+	'last' => '<a href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+    'nextActive' => '<a rel="next" href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+	'nextDisabled' => '<a href="" onclick="return false;" class="page-link disabled">{{text}}</a>',
+	'prevActive' => '<a rel="prev" href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+    'prevDisabled' => '<a href="" onclick="return false;" class="page-link disabled">{{text}}</a>'
+]);
+$links = array(
+    $this->Paginator->first('Primeira'),
+    $this->Paginator->prev('Anterior'),
+    $this->Paginator->next('Próxima'),
+    $this->Paginator->last('Última')
+);
+```
+
+> Para passar o Counter para o novo padrão, em lugar de dois pontos, passamos mais uma chave
+
+antes
+
+```php
+$paginateCount = $this->Paginator->counter(
+    '{:page} de {:pages}, mostrando {:current} registros de {:count}, começando em {:start} até {:end}'
+);
+```
+
+agora
+
+```php
+$paginateCount = $this->Paginator->counter(
+    '{{page}} de {{pages}}, mostrando {{current}} registros de {{count}}, começando em {{start}} até {{end}}'
+);
+```
+
+> Para alterar a forma como ele pegava a URL e marcava como ativa no menu
+
+antes
+
+```php
+$this->Js->buffer('$(".nav-item").removeClass("active");');
+$this->Js->buffer('$(".nav-item a[href$=\'' . $controllerName . '\']").addClass("active");');
+
+```
+
+agora
+
+```php
+$controllerName = \Cake\Utility\Inflector::underscore($this->request->getParam('controller'));
+$this->Js->buffer('$(".nav-item").removeClass("active");');
+$this->Js->buffer('$(".nav-item a[href$=\'' . $controllerName . '\']").addClass("active");');
+```
 ----
 
 # CakePHP Application Skeleton
