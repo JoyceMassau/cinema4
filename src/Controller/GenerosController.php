@@ -18,7 +18,7 @@ class GenerosController extends AppController
             $nome = $this->request->getData('nome');
             $this->request->getSession()->write('nome', $nome);
         } else {
-            $nome = $this->Session->read('nome');
+            $nome = $this->request->getSession()->read('nome');
             $this->request->data('nome', $nome);
         }
         if (!empty($nome)) {
