@@ -1,7 +1,6 @@
 <?php
-$controllerName = $this->request->params['controller'];
-$novoButton = $this->Js->link('Novo', '/' . $controllerName . '/add', array('class' => 'btn btn-success float-right', 'update' => '#content'));
-$reportButton = $this->Html->link('Imprimir', '/' . $controllerName . '/report', array('class' => 'btn btn-secondary float-right mr-2', 'target' => '_blank'));
+$novoButton = $this->Html->link('Novo', ['action' => 'add'], array('class' => 'btn btn-success float-right', 'update' => '#content'));
+$reportButton = $this->Html->link('Imprimir', ['action' => 'report'], array('class' => 'btn btn-secondary float-right mr-2', 'target' => '_blank'));
 
 $filtro = $this->Form->create(false, array('class' => 'form-inline'));
 $filtro .= $this->fetch('searchFields'); 
