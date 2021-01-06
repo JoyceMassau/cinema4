@@ -52,73 +52,74 @@ class AppController extends Controller
          */
         //$this->loadComponent('FormProtection');
 
-        public function beforeFilter() {
-            // $this->Auth->mapActions(['read' => ['report']]);
-        }
+    }
     
-        public function index() {
-            $entity = $this->{getModelName()}->newEmptyEntity();
-            $this->set(compact('entity'));
-            $this->setPaginateConditions();
-            try {
-                $this->set($this->getControllerName(), $this->paginate());        
-            } catch (NotFoundException $e) {
-                $this->redirect('/' . $this->getControllerName());
-            }        
-        }
-    
-        public function add() {
-            $entity = $this->{getModelName()}->newEmptyEntity();
-            if ($this->request->is('post')) {
-                $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->getData());
-                if ($this->{$this->getModelName()}->save($entity)) {
-                    $this->Flash->bootstrap('Gravado com sucesso!', array('key' => 'success'));
-                    $this->redirect(['action' => 'index']);
-                }
-            }
-            $this->set(compact('entity'));
-        }
-    
-        public function edit($id = null) {
-            $entity = $this->getEditEntity($id);
-            if ($this-request->is(['post', 'patch', 'put'])) {
-                $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->request->getData());
-                if ($this->{$this->getModelName()}->save($entity)) {
-                    $this->Flash->bootstrap('Alterado com sucesso!', array('key' => 'success'));
-                    $this->redirect(['action' => 'index']);
-                }
-            }
-            $this->set(compact('entity'));
-        }
-    
-        public function view($id = null) {
-            $entity = $this->getEditEntity($id);
-            $this->set(compact('entity'));
-        }
-    
-        public function delete($id) {
-            $entity = $this->getEditEntity($entity);
-            $this->Flash->bootstrap('Excluído com sucesso!', array('key' => 'warning'));
-            $this->redirect(['action' => 'index']);
-        }
-    
-        public function report() {
-            $this->layout = false;
-            $this->response->type('pdf');
+    public function beforeFilter() {
+        // $this->Auth->mapActions(['read' => ['report']]);
+    }
+
+    public function index() {
+        $entity = $this->{getModelName()}->newEmptyEntity();
+        $this->set(compact('entity'));
+        $this->setPaginateConditions();
+        try {
             $this->set($this->getControllerName(), $this->paginate());        
+        } catch (NotFoundException $e) {
+            $this->redirect('/' . $this->getControllerName());
+        }        
+    }
+
+    public function add() {
+        $entity = $this->{getModelName()}->newEmptyEntity();
+        if ($this->request->is('post')) {
+            $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->getData());
+            if ($this->{$this->getModelName()}->save($entity)) {
+                $this->Flash->bootstrap('Gravado com sucesso!', array('key' => 'success'));
+                $this->redirect(['action' => 'index']);
+            }
         }
-    
-        public function getControllerName() {
-            return \Cake\Utility\Inflector::underscore($this->request->params['controller']);
+        $this->set(compact('entity'));
+    }
+
+    public function edit($id = null) {
+        $entity = $this->getEditEntity($id);
+        if ($this-request->is(['post', 'patch', 'put'])) {
+            $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->request->getData());
+            if ($this->{$this->getModelName()}->save($entity)) {
+                $this->Flash->bootstrap('Alterado com sucesso!', array('key' => 'success'));
+                $this->redirect(['action' => 'index']);
+            }
         }
-    
-        public function getModelName() {
-            return $this->request->params['controller'];
-        }
-    
-        public function setFilmes() {
-            $filme = ClassRegistry::init('Filme');
-            $this->set('filmes', $filme->find('list', array('fields' => array('Filme.id', 'Filme.nome'))));
-        }
+        $this->set(compact('entity'));
+    }
+
+    public function view($id = null) {
+        $entity = $this->getEditEntity($id);
+        $this->set(compact('entity'));
+    }
+
+    public function delete($id) {
+        $entity = $this->getEditEntity($entity);
+        $this->Flash->bootstrap('Excluído com sucesso!', array('key' => 'warning'));
+        $this->redirect(['action' => 'index']);
+    }
+
+    public function report() {
+        $this->layout = false;
+        $this->response->type('pdf');
+        $this->set($this->getControllerName(), $this->paginate());        
+    }
+
+    public function getControllerName() {
+        return \Cake\Utility\Inflector::underscore($this->request->params['controller']);
+    }
+
+    public function getModelName() {
+        return $this->request->params['controller'];
+    }
+
+    public function setFilmes() {
+        $filme = ClassRegistry::init('Filme');
+        $this->set('filmes', $filme->find('list', array('fields' => array('Filme.id', 'Filme.nome'))));
     }
 }

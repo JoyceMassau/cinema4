@@ -427,7 +427,43 @@ agora
 ```php
 $this->request->getSession()->write('nome', $nome);
 ```
+
 ----
+
+### Migrando Models e Tests do CRUD
+
+> Na nova versão do Cake não existe mais um AppModel e nem é possível rodar o teste via browser
+> Table é onde você vai manipular as coleções de registros do banco de dados
+> Entity é onde você vai manipular um único registro
+> Para poder rodar os testes se o ambiente de desenvolvimento utiliza mais de uma versão do php é preciso alterar o arquivo em **vendor > bin > phpunit.bat** e alterar o executável, inserindo o numeral 7 após o nome do executável, da seguinte forma
+
+```php
+@ECHO OFF
+setlocal DISABLEDELAYEDEXPANSION
+SET BIN_TARGET=%~dp0/../phpunit/phpunit/phpunit
+php7 "%BIN_TARGET%" %*
+``` 
+
+> Como não temos mais os testes via browser, no PowerShell, digitamos
+
+```bat
+.\vendor\bin\phpunit .\tests\TestCase\Model\
+```
+
+Vídeo 5:38
+
+## Possíveis erros
+
+> "PS C:\xampp\htdocs\cinema4> .\vendor\phpunit\ .\tests\TestCase\Model\
+.\vendor\phpunit\ : O termo '.\vendor\phpunit\' não é reconhecido como nome de cmdlet, função, arquivo de script ou
+programa operável. Verifique a grafia do nome ou, se um caminho tiver sido incluído, veja se o caminho está correto e
+tente novamente.
+No linha:1 caractere:1
++ .\vendor\phpunit\ .\tests\TestCase\Model\
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (.\vendor\phpunit\:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
 
 # CakePHP Application Skeleton
 
