@@ -18,11 +18,11 @@ class GenerosController extends AppController
             $nome = $this->request->getData('nome');
             $this->request->getSession()->write('nome', $nome);
         } else {
-            $nome = $this->Session->read('Genero.nome');
-            $this->request->data('Genero.nome', $nome);
+            $nome = $this->Session->read('nome');
+            $this->request->data('nome', $nome);
         }
         if (!empty($nome)) {
-            $this->paginate['conditions']['Genero.nome LIKE'] = '%' . trim($nome) . '%';
+            $this->paginate['conditions']['nome LIKE'] = '%' . trim($nome) . '%';
         }
     }
 
