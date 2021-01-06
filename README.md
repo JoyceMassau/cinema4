@@ -125,6 +125,32 @@ $options = !isset($options) ? compact('template') : array_merge(compact('templat
 $formCreate = $this->Form->create($entity,$options);
 ```
 
+> Como todos as views de add do CRUD anterior extendiam de uma view padrão, o **common/form** e as do index extendiam de uma view padrão, o **common/index**, precisamos migrá-lo também. Para isto, vamos copiar os dois arquivos em **View > Common** do projeto antigo para **templates > Common** do projeto novo. No projeto novo não há um diretório Common, precisando ser criado
+
+#### Arquivo templates > Common > form.php
+
+> No add, edit e view abstraímos através do form
+> Nesta versão do CakePHP não existe mais o **this->request->params** e para substituí-lo é usado **this->request->getParams**, porém não precisamos mais pegar o nome do parâmetro, vamos somente pegar o nome do controller
+
+```php
+$actionName = $this->request->getparam('action');
+```
+
+> Não existe mais o Helper **this->js**, precisando ser substituído. Abaixo, um exemplo de substituíção de como ficou o submit do botão
+
+```php
+$form .= $this->Js->submit('Gravar', array('class' => 'btn btn-success mr-3', 'div' => false, 'update' => '#content'));
+
+$form .= $this->Form->submit('Gravar', array('class' => 'btn btn-success mr-3', 'div' => false, 'update' => '#content'));
+```
+
+> Um exemplo de substituíção de como ficou o link do botão antes e depois do Helper **this->js** e uma refatoração para não precisar mais concatenar o botão com o nome do controller. Antes os links estavam como Js para poder utilizar o Ajax, porém isso mudou nessa nova versão do CakePHP e será abordado posteriormente
+
+```php
+$form .= $this->Js->link('Voltar', '/' . $controllerName, array('class' => 'btn btn-secondary', 'update' => '#content'));
+
+$form .= $this->Html->link('Voltar', ['action' => 'index'], array('class' => 'btn btn-secondary', 'update' => '#content'));
+```
 
 
 ----
