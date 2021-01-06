@@ -26,10 +26,10 @@ class GenerosController extends AppController
         }
     }
 
-    public function getEditData($id) {
-        $fields = array('Genero.id', 'Genero.nome');
-        $conditions = array('Genero.id' => $id);
+    public function getEditEntity($id) {
+        $fields = array('id', 'nome');
+        $contain = [];
       
-        return $this->Genero->find('first', compact('fields', 'conditions'));
+        return $this->Genero->get($id, compact('fields', 'contain'));
     }
 }
