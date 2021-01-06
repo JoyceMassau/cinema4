@@ -96,6 +96,7 @@ php7 "%lib%cake.php" %*
 - Copiar o arquivo **View > Layouts > bootstrap.ctp** do projeto antigo para **templates > layout** do projeto novo e alterar a extensão do arquivo, como mencionado anteriormente
 > Repetir o procedimento para o arquivo **View > Layouts > login.ctp** do projeto antigo
 
+----
 
 ### Migrando Views do CRUD
 
@@ -313,6 +314,119 @@ $editLink = $this->Html->link('Alterar', ['action' => 'edit', $genero->id], arra
 > Sem o JS Helper nessa nova versão do CakePHP a solução escolhida foi copiar o JS Helper da versão antiga e adaptar o código para poder funcionar com o CakePHP 4.
 > Funcionamento: Basicamente, o arquivo em **src > View > Helper > JsHelper.php** joga todas as chamadas Javascript para um buffer e escreve o buffer dentro de um template
 
+----
+
+### Migrando Controllers do CRUD
+
+> Vamos comparar o arquivo **Controller > AppController.php** do projeto antigo com o **src > Controller > AppController.php** do projeto novo. Antes, alé, do Flash e do RequestHandler, que também estão disponíveis na nova versão do CakePHP, carregávamos também o Session, o Auth e o Acl, porém estes três últimos não são mais componentes básicos do framework, eles agora são plugins
+> Para setar o layout e os helpers
+
+```php
+$this->viewBuilder()->setLayout('bootstrap');
+$this->viewBuilder()->setHelpers(['Js', 'Pdf.Report']);
+```
+
+> Para carregar um plugin, seguimos a documentação https://book.cakephp.org/4/en/plugins.html#loading-a-plugin, damos git clone do repositório Pdf dentro do diretório **plugin** do projeto e o repositório Make-Pdf dentro do diretório **Make-Pdf**
+> Com o composer, adicionaremos o caminho completo para o plugin na seção do autoload. Iremos alterar o composer.json, adicionando uma nova nova dependência
+
+```json
+"autoload": {
+        "psr-4": {
+            "App\\": "src/",
+            "Pdf\\": "./plugins/Pdf/scr",            
+            "Pdf\\MakePdf\\": "Vendor/make-pdf/lib"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/",
+            "Pdf\\": "./plugins/Pdf/scr",            
+            "Pdf\\MakePdf\\": "Vendor/make-pdf/lib"
+        }
+    },
+```
+
+> Para dar restart no Composer, estando na raiz do diretório do projeto, dê 
+php7 C:\xampp\php7\composer.phar dumpautoload, no PowerShell
+
+> Precisamos agora carregar o plugin, para isso, no PowerShell, digitar
+
+```bat
+.\bin\cake plugin load Pdf
+```
+
+> Ao fazer isso, dentro do arquivo **src > Application.php** ele irá adicionar uma linha. Isso também pode ser feito manualmente 
+
+```php
+$this->addPlugin('Pdf');
+```
+
+> Copiaremos os demais métodos do AppController antigo e colaremos no novo projeto e iremos refatorar
+
+> Atualmente só existe o método getData, Não existe mais a propriedade resquest->data e isso deverá ser substituído em todos os controllers da aplicação
+
+> Vamos começar. Dentro do **src > Controller > AppController.php** criaremos uma entidade vazia e a armazenaremos dentro da variável $entity
+
+```php
+$entity = $this->{getModelName()}->newEmptyEntity();
+```
+
+> Em seguida, iremos setar para que ela seja visível no formulário
+
+```php
+$this->set(compact('entity'));
+```
+
+> Antes utilizávamos o modelClass para pegar o nome do model. Atualmente não fazemos mais isso
+
+antes
+
+```php
+public function getModelName() {
+    return $this->modelClass;
+}
+```
+
+agora
+
+```php
+public function getModelName() {
+    return $this->request->params['controller'];
+}
+```
+
+> Temos que alterar a função que utilizávamos antes para informar endereços de url, para isso utilizamos o nome do controle em underscore
+
+antes
+
+```php
+public function getControllerName() {
+    return \Cake\Utility\Inflector::underscore($this->request->params['controller']);
+}
+```
+
+agora
+
+```php
+public function getControllerName() {
+    return \Cake\Utility\Inflector::underscore($this->request->params['controller']);
+}
+```
+
+> Para guardar a Sessão
+
+antes
+
+```php
+$this->Session->write('Genero.nome', $nome);
+```
+
+agora
+
+```php
+$this->request->getSession()->write('nome', $nome);
+```
 ----
 
 # CakePHP Application Skeleton
