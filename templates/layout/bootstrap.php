@@ -7,6 +7,7 @@
         <?php 
             echo $this->Html->css('bootstrap.min.css');
             echo $this->Html->css('starter-template.css');
+            echo $this->Html->script('jquery-3.4.1.min.js');
         ?>
     </head>
     <body>
@@ -46,8 +47,9 @@
             ?>
         </main>
         <?php
-            echo $this->Html->script('jquery-3.4.1.min.js');
             echo $this->Html->script('bootstrap.bundle.min.js');
+            echo $this->Html->script('ajax.js');
+            echo $this->fetch('script');
             echo $this->Js->writeBuffer();
         ?>
     </body>

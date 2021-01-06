@@ -125,7 +125,193 @@ $options = !isset($options) ? compact('template') : array_merge(compact('templat
 $formCreate = $this->Form->create($entity,$options);
 ```
 
+> Como todos as views de add do CRUD anterior extendiam de uma view padrão, o **common/form** e as do index extendiam de uma view padrão, o **common/index**, precisamos migrá-lo também. Para isto, vamos copiar os dois arquivos em **View > Common** do projeto antigo para **templates > Common** do projeto novo. No projeto novo não há um diretório Common, precisando ser criado
 
+#### Arquivo templates > Common > form.php
+
+> No add, edit e view abstraímos através do form
+> Nesta versão do CakePHP não existe mais o **this->request->params** e para substituí-lo é usado **this->request->getParams**, porém não precisamos mais pegar o nome do parâmetro, vamos somente pegar o nome do controller
+
+```php
+$actionName = $this->request->getparam('action');
+```
+
+> Não existe mais o Helper **this->js**, precisando ser substituído. Abaixo, um exemplo de substituíção de como ficou o submit do botão
+
+antes
+
+```php
+$form .= $this->Js->submit('Gravar', array('class' => 'btn btn-success mr-3', 'div' => false, 'update' => '#content'));
+```
+
+agora
+
+```php
+$form .= $this->Form->submit('Gravar', array('class' => 'btn btn-success mr-3', 'div' => false, 'update' => '#content'));
+```
+
+> Um exemplo de substituíção de como ficou o link do botão antes e depois do Helper **this->js** e uma refatoração para não precisar mais concatenar o botão com o nome do controller. Antes os links estavam como Js para poder utilizar o Ajax, porém isso mudou nessa nova versão do CakePHP e será abordado posteriormente
+
+antes
+
+```php
+$form .= $this->Js->link('Voltar', '/' . $controllerName, array('class' => 'btn btn-secondary', 'update' => '#content'));
+```
+
+agora
+
+```php
+$form .= $this->Html->link('Voltar', ['action' => 'index'], array('class' => 'btn btn-secondary', 'update' => '#content'));
+```
+
+#### Arquivo templates > Common > index.php
+
+> O elemento de criação do formulário irá mudar com a reformulação do código, conforme abaixo
+
+antes
+
+```php
+$filtro = $this->Form->create(false, array('class' => 'form-inline'));
+```
+
+agora
+
+```php
+$filtro = $this->element('formCreate', ['options' => ['class' => 'form-inline']]);
+```
+
+> Para alterar o controle de paginação
+
+antes
+
+```php
+$this->Paginator->options(array('update' => '#content'));
+$links = array(
+    $this->Paginator->first('Primeira', array('class' => 'page-link')),
+    $this->Paginator->prev('Anterior', array('class' => 'page-link')),
+    $this->Paginator->next('Próxima', array('class' => 'page-link')),
+    $this->Paginator->last('Última', array('class' => 'page-link'))
+);
+```
+
+agora
+
+```php
+$this->Paginator->setTemplates([
+    'first' => '<a href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+	'last' => '<a href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+    'nextActive' => '<a rel="next" href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+	'nextDisabled' => '<a href="" onclick="return false;" class="page-link disabled">{{text}}</a>',
+	'prevActive' => '<a rel="prev" href="{{url}}" class="page-link" update="#content">{{text}}</a>',
+    'prevDisabled' => '<a href="" onclick="return false;" class="page-link disabled">{{text}}</a>'
+]);
+$links = array(
+    $this->Paginator->first('Primeira'),
+    $this->Paginator->prev('Anterior'),
+    $this->Paginator->next('Próxima'),
+    $this->Paginator->last('Última')
+);
+```
+
+> Para passar o Counter para o novo padrão, em lugar de dois pontos, passamos mais uma chave
+
+antes
+
+```php
+$paginateCount = $this->Paginator->counter(
+    '{:page} de {:pages}, mostrando {:current} registros de {:count}, começando em {:start} até {:end}'
+);
+```
+
+agora
+
+```php
+$paginateCount = $this->Paginator->counter(
+    '{{page}} de {{pages}}, mostrando {{current}} registros de {{count}}, começando em {{start}} até {{end}}'
+);
+```
+
+> Para alterar a forma como ele pegava a URL e marcava como ativa no menu
+
+antes
+
+```php
+$this->Js->buffer('$(".nav-item").removeClass("active");');
+$this->Js->buffer('$(".nav-item a[href$=\'' . $controllerName . '\']").addClass("active");');
+
+```
+
+agora
+
+```php
+$controllerName = \Cake\Utility\Inflector::underscore($this->request->getParam('controller'));
+$this->Js->buffer('$(".nav-item").removeClass("active");');
+$this->Js->buffer('$(".nav-item a[href$=\'' . $controllerName . '\']").addClass("active");');
+```
+
+#### Exemplo de migração de arquivo Add, do CRUD de Gêneros
+
+> Onde está **form->input** substituir por **form->controll** e não é mais necessário informar o nome da entidade, apenas o nome do campo, pois o elemento do formCreate já carrega o nome da entidade
+
+antes
+
+```php
+$formFields .= $this->Form->input('Genero.nome');
+```
+
+depois
+
+```php
+$formFields .= $this->Form->control('nome');
+```
+
+#### Exemplo de migração de arquivo index, do CRUD de Gêneros
+
+> Na nova versão do cake, os parâmetros de class e de div dos inputs não vão mais funcionar, sendo necessário passar um parâmetro de templates no array
+
+antes
+
+```php
+$searchFields = $this->Form->input('Genero.nome', array(
+    'required' => false,
+    'label' => array('text' => 'Nome', 'class' => 'sr-only'),
+    'class' => 'form-control mb-2 mr-sm-2',
+    'div' => false,
+    'placeholder' => 'Nome...'
+));
+```
+
+depois
+
+```php
+$searchFields = $this->Form->control('nome', array(
+    'required' => false,
+    'label' => array('text' => 'Nome', 'class' => 'sr-only'),
+    'templates' => [
+        'input' => '<input type="{{type}}" name="{{name}}" class="form-control mb-2 mr-sm-2"{{attrs}}/>',
+    ],
+    'placeholder' => 'Nome...'
+));
+```
+
+> Alteração no link
+
+antes 
+
+```php
+$editLink = $this->Js->link('Alterar', '/generos/edit/' . $genero['Genero']['id'], array('update' => '#content'));
+```
+
+agora
+
+```php
+$editLink = $this->Html->link('Alterar', ['action' => 'edit', $genero->id], array('update' => '#content'));
+```
+
+#### Como usar javascript no CakePHP 4 
+
+> Sem o JS Helper nessa nova versão do CakePHP a solução escolhida foi copiar o JS Helper da versão antiga e adaptar o código para poder funcionar com o CakePHP 4.
+> Funcionamento: Basicamente, o arquivo em **src > View > Helper > JsHelper.php** joga todas as chamadas Javascript para um buffer e escreve o buffer dentro de um template
 
 ----
 
