@@ -11,6 +11,8 @@ echo $this->Html->tag('h1', $this->fetch('title'));
 echo $form;
 
 $this->Js->buffer('$(".form-error").addClass("is-invalid");');
+$this->Js->buffer('createRequestGets("#content a");');
+$this->Js->buffer('createRequestGets("#content input[type=submit]");');
 
 if ($this->request->is('ajax')) {
     echo $this->Js->writeBuffer();

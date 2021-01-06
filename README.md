@@ -308,6 +308,10 @@ agora
 $editLink = $this->Html->link('Alterar', ['action' => 'edit', $genero->id], array('update' => '#content'));
 ```
 
+#### Como usar javascript no CakePHP 4 
+
+> Sem o JS Helper nessa nova versão do CakePHP a solução escolhida foi copiar o JS Helper da versão antiga e adaptar o código para poder funcionar com o CakePHP 4.
+> Funcionamento: Basicamente, o arquivo em **src > View > Helper > JsHelper.php** joga todas as chamadas Javascript para um buffer e escreve o buffer dentro de um template
 
 ----
 
