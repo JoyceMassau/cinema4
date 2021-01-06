@@ -15,7 +15,7 @@ class GenerosController extends AppController
     public function setPaginateConditions() {
         $nome = '';
         if ($this->request->is('post')) {
-            $nome = $this->request->data['Genero']['nome'];
+            $nome = $this->request->getData('nome');
             $this->Session->write('Genero.nome', $nome);
         } else {
             $nome = $this->Session->read('Genero.nome');
