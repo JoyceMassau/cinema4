@@ -248,6 +248,23 @@ $controllerName = \Cake\Utility\Inflector::underscore($this->request->getParam('
 $this->Js->buffer('$(".nav-item").removeClass("active");');
 $this->Js->buffer('$(".nav-item a[href$=\'' . $controllerName . '\']").addClass("active");');
 ```
+
+#### Exemplo de migração de arquivo Add, do CRUD de Gêneros
+
+> Onde está **form->input** substituir por **form->controll** e não é mais necessário informar o nome da entidade, apenas o nome do campo, pois o elemento do formCreate já carrega o nome da entidade
+
+antes
+
+```php
+$formFields .= $this->Form->input('Genero.nome');
+```
+
+depois
+
+```php
+$formFields .= $this->Form->control('nome');
+```
+
 ----
 
 # CakePHP Application Skeleton
