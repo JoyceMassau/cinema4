@@ -6,10 +6,10 @@ namespace App\Controller;
 class GenerosController extends AppController
 {
     public $paginate = array(
-        'fields' => array('Genero.id', 'Genero.nome'),
+        'fields' => array('id', 'nome'),
         'conditions' => array(),
         'limit' => 10,
-        'order' => array('Genero.nome' => 'asc')    
+        'order' => array('nome' => 'asc')    
     );
 
     public function setPaginateConditions() {
