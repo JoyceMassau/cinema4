@@ -10,23 +10,8 @@ use Cake\TestSuite\Fixture\TestFixture;
  */
 class GenerosFixture extends TestFixture
 {
-    /**
-     * Fields
-     *
-     * @var array
-     */
-    // phpcs:disable
-    public $fields = [
-        'id' => ['type' => 'integer', 'length' => null, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
-        'nome' => ['type' => 'string', 'length' => 100, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null],
-        '_constraints' => [
-            'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
-        ],
-        '_options' => [
-            'engine' => 'InnoDB',
-            'collation' => 'utf8_general_ci'
-        ],
-    ];
+    public $import = array('model' => 'Genero', 'records' => false);
+    
     // phpcs:enable
     /**
      * Init method
@@ -37,8 +22,8 @@ class GenerosFixture extends TestFixture
     {
         $this->records = [
             [
-                'id' => 1,
-                'nome' => 'Lorem ipsum dolor sit amet',
+                'id' => 1, 
+                'nome' => 'Aventura'
             ],
         ];
         parent::init();

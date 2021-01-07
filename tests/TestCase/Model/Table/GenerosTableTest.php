@@ -54,25 +54,27 @@ class GenerosTableTest extends TestCase
 
     public function testEmptyNome() {
         $data = array('nome' => null);
-        $saved = $this->Genero->save($data);
-        $this->assertFalse($saved);
+        $genero = $this->Generos->newEntity($data);
+        $this->assertNotEmpty($genero->getErrors()['nome']);
 
         $data = array('nome' => '');
-        $saved = $this->Genero->save($data);
-        $this->assertFalse($saved);
+        $genero = $this->Generos->newEntity($data);
+        $this->assertNotEmpty($genero->getErrors()['nome']);
 
         $data = array('nome' => '   ');
-        $saved = $this->Genero->save($data);
-        $this->assertFalse($saved);
+        $genero = $this->Generos->newEntity($data);
+        $this->assertNotEmpty($genero->getErrors()['nome']);
 
         $data = array('nome' => '12');
-        $saved = $this->Genero->save($data);
-        $this->assertFalse($saved);
+        $genero = $this->Generos->newEntity($data);
+        $this->assertNotEmpty($genero->getErrors()['nome']);
     }
 
     public function testNotUniqueNome() {
         $data = array('nome' => 'Aventura');
-        $saved = $this->Genero->save($data);
+        $genero = $this->Generos->newEntity($data);
+        $saved = $this->Generos->save($genero);
         $this->assertFalse($saved);
+        $this->assertNotEmpty($genero->getErrors()['nome']);
     }
 }

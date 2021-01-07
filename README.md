@@ -454,8 +454,82 @@ php7 "%BIN_TARGET%" %*
 
 Irá [dar erro](https://github.com/JoyceMassau/cinema4#2 "dar erro") também caso não tenha configurado o ambiente de testes no banco de dados ou [não tenha criado o banco de dados de teste no PHP MyAdmin](https://github.com/JoyceMassau/cinema4#3 "não tenha criado o banco de dados de teste no PHP MyAdmin")
 
+#### Validação em Duas Etapas
+> Na nova versão do Cake a validação [se dá em duas etapas](http://https://book.cakephp.org/4/en/orm/validation.html "se dá em duas etapas")
+> Agora não é mais preciso dar o save no registro, substituindo por uma nova entidade
 
+antes
 
+```php
+public function testEmptyNome() {
+    $data = array('nome' => null);
+    $saved = $this->Genero->save($data);
+    $this->assertFalse($saved);
+}
+```
+
+agora
+
+```php
+public function testEmptyNome() {
+    $data = array('nome' => null);
+        $genero = $this->Generos->newEntity($data);
+        $this->assertNotEmpty($generos->getErros()['nome']);
+}
+```
+
+> O testNotUniqueNome não é um *validation* é um *rule.* Após criar a entidade, precisamos forçar o save
+
+antes
+
+```php
+public function testNotUniqueNome() {
+    $data = array('nome' => 'Aventura');
+    $saved = $this->Genero->save($data);
+    $this->assertFalse($saved);
+}
+```
+
+agora
+
+```php
+public function testNotUniqueNome() {
+    $data = array('nome' => 'Aventura');
+    $genero = $this->Generos->newEntity($data);
+    $saved = $this->Generos->save($genero);
+    $this->assertNotEmpty($genero->getErrors()['nome']);
+}
+```
+
+Podemos fazer outro test também verificando se é false e rodar o teste novamente, que irá falhar, pois não aplicamos as regras de negócio
+
+```php
+public function testNotUniqueNome() {
+    $data = array('nome' => 'Aventura');
+    $genero = $this->Generos->newEntity($data);
+    $saved = $this->Generos->save($genero);
+    $this->assertNotEmpty($genero->getErrors()['nome']);
+}
+```
+
+> Devemos alterar o **tests > Fixture > GenerosFixture.php** sobrescrevendo o disponível 
+> Apaga os fields do schema fixo que ele utiliza em **tests > Fixture > GenerosFixture.php** para que ele sempre utilize o do banco de dados. Para isso, colocar no lugar dos fields, o import que utilizávamos no sistema na versão antiga
+
+antes
+
+```php
+public $fields = [
+    'id' => ['type' => 'integer', 'length' => null, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
+    'nome' => ['type' => 'string', 'length' => 100, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null],
+    '_constraints' => [
+        'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
+    ],
+    '_options' => [
+        'engine' => 'InnoDB',
+        'collation' => 'utf8_general_ci'
+    ],
+];
+```
 
 ## Possíveis erros
 
