@@ -369,7 +369,7 @@ $this->addPlugin('Pdf');
 > Vamos começar. Dentro do **src > Controller > AppController.php** criaremos uma entidade vazia e a armazenaremos dentro da variável $entity
 
 ```php
-$entity = $this->{getModelName()}->newEmptyEntity();
+$entity = $this->{$this->getModelName()}->newEmptyEntity();
 ```
 
 > Em seguida, iremos setar para que ela seja visível no formulário
@@ -454,8 +454,117 @@ php7 "%BIN_TARGET%" %*
 
 Irá [dar erro](https://github.com/JoyceMassau/cinema4#2 "dar erro") também caso não tenha configurado o ambiente de testes no banco de dados ou [não tenha criado o banco de dados de teste no PHP MyAdmin](https://github.com/JoyceMassau/cinema4#3 "não tenha criado o banco de dados de teste no PHP MyAdmin")
 
+#### Validação em Duas Etapas
+> Na nova versão do Cake a validação [se dá em duas etapas](http://https://book.cakephp.org/4/en/orm/validation.html "se dá em duas etapas")
+> Agora não é mais preciso dar o save no registro, substituindo por uma nova entidade
 
+antes
 
+```php
+public function testEmptyNome() {
+    $data = array('nome' => null);
+    $saved = $this->Genero->save($data);
+    $this->assertFalse($saved);
+}
+```
+
+agora
+
+```php
+public function testEmptyNome() {
+    $data = array('nome' => null);
+        $genero = $this->Generos->newEntity($data);
+        $this->assertNotEmpty($generos->getErros()['nome']);
+}
+```
+
+> O testNotUniqueNome não é um *validation* é um *rule.* Após criar a entidade, precisamos forçar o save
+
+antes
+
+```php
+public function testNotUniqueNome() {
+    $data = array('nome' => 'Aventura');
+    $saved = $this->Genero->save($data);
+    $this->assertFalse($saved);
+}
+```
+
+agora
+
+```php
+public function testNotUniqueNome() {
+    $data = array('nome' => 'Aventura');
+    $genero = $this->Generos->newEntity($data);
+    $saved = $this->Generos->save($genero);
+    $this->assertNotEmpty($genero->getErrors()['nome']);
+}
+```
+
+Podemos fazer outro test também verificando se é false e rodar o teste novamente, que irá falhar, pois não aplicamos as regras de negócio
+
+```php
+public function testNotUniqueNome() {
+    $data = array('nome' => 'Aventura');
+    $genero = $this->Generos->newEntity($data);
+    $saved = $this->Generos->save($genero);
+    $this->assertNotEmpty($genero->getErrors()['nome']);
+}
+```
+
+> Devemos alterar o **tests > Fixture > GenerosFixture.php** sobrescrevendo o disponível 
+> Apaga os fields do schema fixo que ele utiliza em **tests > Fixture > GenerosFixture.php** para que ele sempre utilize o do banco de dados. Para isso, colocar no lugar dos fields, o *import* que utilizávamos no sistema na versão antiga sem a parte do *records => false*
+
+antes
+
+```php
+public $fields = [
+    'id' => ['type' => 'integer', 'length' => null, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
+    'nome' => ['type' => 'string', 'length' => 100, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null],
+    '_constraints' => [
+        'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
+    ],
+    '_options' => [
+        'engine' => 'InnoDB',
+        'collation' => 'utf8_general_ci'
+    ],
+];
+```
+
+agora
+
+```php
+public $import = array('model' => 'generos');
+```    
+
+> Para aplicar as validações no model, no novo projeto vamos em **src > Model > Table > GenerosTable.php** e verificamos as *validator* que o cake bake criou. Neste caso estaremos mantendo as outras validações e alterando apenas a *allowEmptyString*
+
+antes
+
+```php
+->allowEmptyString('nome');
+```
+
+agora
+
+```php
+->notBlank('nome', __('Informe o nome'))
+->minLength('nome', 3, __('Informe um nome com mais de 2 dígitos'));
+```
+
+> Após a inserção da validação e rodar os testes novamente, só irá falhar no testNotUniqueNome, e como agora o [isUnique é uma rule e não mais uma validation, precisamos fazer alteração](http://https://book.cakephp.org/4/en/orm/validation.html#creating-a-rules-checker "isUnique é uma rule e não mais uma validation, precisamos fazer alteração")
+> Para isso é necessário criar um método builRules, e todas as rules que criarmos no modelo adicionaremos nele
+
+```php
+public function buildRules(RulesChecker $rules): RulesChecker
+{
+    $rules->add($rules->isUnique(['nome'], __('Nome já existe')));
+
+    return $rules;
+}
+```
+
+> Na documentação há outros exemplos de rule além do isUnique, mas é possível criar também outras regras de negócio próprias. Ao rodar os testes agora *( .\vendor\bin\phpunit .\tests\TestCase\Model\Table\GenerosTableTest.php )*, deverá dar certo.
 
 ## Possíveis erros
 
