@@ -59,7 +59,7 @@ class AppController extends Controller
     // }
 
     public function index() {
-        $entity = $this->{getModelName()}->newEmptyEntity();
+        $entity = $this->{$this->getModelName()}->newEmptyEntity();
         $this->set(compact('entity'));
         $this->setPaginateConditions();
         try {
@@ -83,7 +83,7 @@ class AppController extends Controller
 
     public function edit($id = null) {
         $entity = $this->getEditEntity($id);
-        if ($this-request->is(['post', 'patch', 'put'])) {
+        if ($this->request->is(['post', 'patch', 'put'])) {
             $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->request->getData());
             if ($this->{$this->getModelName()}->save($entity)) {
                 $this->Flash->bootstrap('Alterado com sucesso!', array('key' => 'success'));

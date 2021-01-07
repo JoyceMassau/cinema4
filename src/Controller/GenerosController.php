@@ -27,9 +27,9 @@ class GenerosController extends AppController
     }
 
     public function getEditEntity($id) {
-        $fields = array('id', 'nome');
+        $fields = ['id', 'nome'];
         $contain = [];
       
-        return $this->Genero->get($id, compact('fields', 'contain'));
+        return $this->Generos->get($id, compact('fields', 'contain'));
     }
 }

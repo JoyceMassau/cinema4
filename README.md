@@ -369,7 +369,7 @@ $this->addPlugin('Pdf');
 > Vamos começar. Dentro do **src > Controller > AppController.php** criaremos uma entidade vazia e a armazenaremos dentro da variável $entity
 
 ```php
-$entity = $this->{getModelName()}->newEmptyEntity();
+$entity = $this->{$this->getModelName()}->newEmptyEntity();
 ```
 
 > Em seguida, iremos setar para que ela seja visível no formulário
