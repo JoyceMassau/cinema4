@@ -52,13 +52,27 @@ class GenerosTableTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Test validationDefault method
-     *
-     * @return void
-     */
-    public function testValidationDefault(): void
-    {
-        $this->markTestIncomplete('Not implemented yet.');
+    public function testEmptyNome() {
+        $data = array('nome' => null);
+        $saved = $this->Genero->save($data);
+        $this->assertFalse($saved);
+
+        $data = array('nome' => '');
+        $saved = $this->Genero->save($data);
+        $this->assertFalse($saved);
+
+        $data = array('nome' => '   ');
+        $saved = $this->Genero->save($data);
+        $this->assertFalse($saved);
+
+        $data = array('nome' => '12');
+        $saved = $this->Genero->save($data);
+        $this->assertFalse($saved);
+    }
+
+    public function testNotUniqueNome() {
+        $data = array('nome' => 'Aventura');
+        $saved = $this->Genero->save($data);
+        $this->assertFalse($saved);
     }
 }
