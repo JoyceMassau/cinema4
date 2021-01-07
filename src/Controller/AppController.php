@@ -54,9 +54,9 @@ class AppController extends Controller
 
     }
     
-    public function beforeFilter() {
-        // $this->Auth->mapActions(['read' => ['report']]);
-    }
+    // public function beforeFilter() {
+    //     // $this->Auth->mapActions(['read' => ['report']]);
+    // }
 
     public function index() {
         $entity = $this->{getModelName()}->newEmptyEntity();

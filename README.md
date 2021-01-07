@@ -537,6 +537,35 @@ agora
 public $import = array('model' => 'generos');
 ```    
 
+> Para aplicar as validações no model, no novo projeto vamos em **src > Model > Table > GenerosTable.php** e verificamos as *validator* que o cake bake criou. Neste caso estaremos mantendo as outras validações e alterando apenas a *allowEmptyString*
+
+antes
+
+```php
+->allowEmptyString('nome');
+```
+
+agora
+
+```php
+->notBlank('nome', __('Informe o nome'))
+->minLength('nome', 3, __('Informe um nome com mais de 2 dígitos'));
+```
+
+> Após a inserção da validação e rodar os testes novamente, só irá falhar no testNotUniqueNome, e como agora o [isUnique é uma rule e não mais uma validation, precisamos fazer alteração](http://https://book.cakephp.org/4/en/orm/validation.html#creating-a-rules-checker "isUnique é uma rule e não mais uma validation, precisamos fazer alteração")
+> Para isso é necessário criar um método builRules, e todas as rules que criarmos no modelo adicionaremos nele
+
+```php
+public function buildRules(RulesChecker $rules): RulesChecker
+{
+    $rules->add($rules->isUnique(['nome'], __('Nome já existe')));
+
+    return $rules;
+}
+```
+
+> Na documentação há outros exemplos de rule além do isUnique, mas é possível criar também outras regras de negócio próprias. Ao rodar os testes agora *( .\vendor\bin\phpunit .\tests\TestCase\Model\Table\GenerosTableTest.php )*, deverá dar certo.
+
 ## Possíveis erros
 
 #### 1
