@@ -10,7 +10,7 @@ use Cake\TestSuite\Fixture\TestFixture;
  */
 class GenerosFixture extends TestFixture
 {
-    public $import = array('model' => 'Genero', 'records' => false);
+    public $import = array('model' => 'generos');
     
     // phpcs:enable
     /**

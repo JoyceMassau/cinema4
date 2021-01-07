@@ -513,7 +513,7 @@ public function testNotUniqueNome() {
 ```
 
 > Devemos alterar o **tests > Fixture > GenerosFixture.php** sobrescrevendo o disponível 
-> Apaga os fields do schema fixo que ele utiliza em **tests > Fixture > GenerosFixture.php** para que ele sempre utilize o do banco de dados. Para isso, colocar no lugar dos fields, o import que utilizávamos no sistema na versão antiga
+> Apaga os fields do schema fixo que ele utiliza em **tests > Fixture > GenerosFixture.php** para que ele sempre utilize o do banco de dados. Para isso, colocar no lugar dos fields, o *import* que utilizávamos no sistema na versão antiga sem a parte do *records => false*
 
 antes
 
@@ -530,6 +530,12 @@ public $fields = [
     ],
 ];
 ```
+
+agora
+
+```php
+public $import = array('model' => 'generos');
+```    
 
 ## Possíveis erros
 
