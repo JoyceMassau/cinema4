@@ -447,22 +447,37 @@ php7 "%BIN_TARGET%" %*
 > Como não temos mais os testes via browser, no PowerShell, digitamos
 
 ```bat
-.\vendor\bin\phpunit .\tests\TestCase\Model\
+.\vendor\bin\phpunit .\tests\TestCase\Model\Table\UsuariosTableTest.php
 ```
 
-Vídeo 5:38
+É passível de [dar erro](https://github.com/JoyceMassau/cinema4#1 "dar erro") ao tentar executar o script caso não tenha o PHPUnit instalado ou confugurado as variáveis de ambiente.
+
+Irá [dar erro](https://github.com/JoyceMassau/cinema4#2 "dar erro") também caso não tenha configurado o ambiente de testes no banco de dados ou [não tenha criado o banco de dados de teste no PHP MyAdmin](https://github.com/JoyceMassau/cinema4#3 "não tenha criado o banco de dados de teste no PHP MyAdmin")
+
+
+
 
 ## Possíveis erros
 
-> "PS C:\xampp\htdocs\cinema4> .\vendor\phpunit\ .\tests\TestCase\Model\
-.\vendor\phpunit\ : O termo '.\vendor\phpunit\' não é reconhecido como nome de cmdlet, função, arquivo de script ou
-programa operável. Verifique a grafia do nome ou, se um caminho tiver sido incluído, veja se o caminho está correto e
-tente novamente.
-No linha:1 caractere:1
-+ .\vendor\phpunit\ .\tests\TestCase\Model\
-+ ~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : ObjectNotFound: (.\vendor\phpunit\:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
+#### 1
+> C:\xampp\htdocs\cinema4> .\vendor\phpunit\ .\tests\TestCase\Model\ .\vendor\phpunit\ : O termo '\vendor\phpunit\' não é reconhecido como nome de cmdlet, função, arquivo de script ou programa operável. Verifique a grafia do nome ou, se um caminho tiver sido incluído, veja se o caminho está correto e tente novamente.
+
+**Correção:** 
+- instalar phpunit pelo link https://book.cakephp.org/4/pt/development/testing.html#instalando-o-phpunit utilizando o composer: *php7 C:\xampp\php7\composer.phar require --dev phpunit/phpunit*
+- Comando no PowerShell para executar os testes: *.\vendor\bin\phpunit .\tests\TestCase\Model\*
+
+
+#### 2
+> Connection to Mysql could not be established: SQLSTATE[HY000] [1045] Access denied for user 'my_app'@'localhost' (using password: YES)
+
+**Correção:** 
+- Para configurar o ambiente de testes, iremos alterar o arquivo **config > app_local.php**, alterando o username e password conforme consta em nosso banco de dados, e o nome do database para *'test_cinema'*
+
+#### 3
+> Connection to Mysql could not be established: SQLSTATE[HY000] [1049] Unknown database 'test_cinema'
+
+**Correção:** 
+- Criar banco de dados chamado 'test_cinema' no PHPMyAdmin. Não é necessário criar nenhuma tabela, ao executar os testes o framework se encarregará da criação
 
 
 # CakePHP Application Skeleton
