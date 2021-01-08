@@ -13,7 +13,7 @@ class UsuariosController extends AppController
 {
 
     public function beforeFilter(\Cake\Event\EventInterface $event) {
-        parent::beforeFilter();
+        parent::beforeFilter($event);
         $this->Authentication->allowUnauthenticated(array('logout','login'));            
     }
 
