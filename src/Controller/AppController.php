@@ -44,7 +44,7 @@ class AppController extends Controller
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
         $this->viewBuilder()->setLayout('bootstrap');
-        $this->viewBuilder()->setHelpers(['Js', 'Pdf.Report']);
+        $this->viewBuilder()->setHelpers(['Js']); //, 'Pdf.Report'
 
         /*
          * Enable the following component for recommended CakePHP form protection settings.
@@ -70,9 +70,9 @@ class AppController extends Controller
     }
 
     public function add() {
-        $entity = $this->{getModelName()}->newEmptyEntity();
+        $entity = $this->{$this->getModelName()}->newEmptyEntity();
         if ($this->request->is('post')) {
-            $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->getData());
+            $entity = $this->{$this->getModelName()}->patchEntity($entity, $this->request->getData());
             if ($this->{$this->getModelName()}->save($entity)) {
                 $this->Flash->bootstrap('Gravado com sucesso!', array('key' => 'success'));
                 $this->redirect(['action' => 'index']);
@@ -100,6 +100,7 @@ class AppController extends Controller
 
     public function delete($id) {
         $entity = $this->getEditEntity($entity);
+        $this->{$this->getModelName()}->delete($entity);
         $this->Flash->bootstrap('Excluído com sucesso!', array('key' => 'warning'));
         $this->redirect(['action' => 'index']);
     }
@@ -111,11 +112,11 @@ class AppController extends Controller
     }
 
     public function getControllerName() {
-        return \Cake\Utility\Inflector::underscore($this->request->params['controller']);
+        return \Cake\Utility\Inflector::underscore($this->request->getParam('controller'));
     }
 
     public function getModelName() {
-        return $this->request->params['controller'];
+        return $this->request->getParam('controller');
     }
 
     public function setFilmes() {
