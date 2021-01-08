@@ -11,6 +11,12 @@ namespace App\Controller;
  */
 class UsuariosController extends AppController
 {
+
+    public function beforeFilter(\Cake\Event\EventInterface $event) {
+        parent::beforeFilter();
+        $this->Authentication->allowUnauthenticated(array('logout','login'));            
+    }
+
     /**
      * Index method
      *
@@ -101,5 +107,23 @@ class UsuariosController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function login() {
+        $this->viewBuilder()->setLayout('login');
+        $this->request->allowMethod(['get', 'post']);
+        $result = $this->Authentication->getResult();        
+        if ($result->isValid()) {
+            $target = $this->Authentication->getLoginRedirect() ?? '/';
+            return $this->redirect($target);
+        }
+        if ($this->request->is('post') && !$result->isValid())
+        $this->Flash->bootstrap('Usuário ou senha incorretos', array('key' => 'danger'));
+                
+    }
+
+    public function logout() {
+        $this->Authentication->logout();
+        $this->redirect('/login');
     }
 }

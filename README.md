@@ -323,6 +323,22 @@ agora
 $editLink = $this->Html->link('Alterar', ['action' => 'edit', $genero->id], array('update' => '#content'));
 ```
 
+#### Mudando rota do App
+> Por padrão o projeto aponta como página inicial o *pages* em **config > routes.php**
+
+antes
+
+```php
+$builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+$builder->connect('/pages/*', 'Pages::display');
+```
+
+agora
+
+```php
+$builder->connect('/', ['controller' => 'Generos', 'action' => 'index']);
+```
+
 #### Como usar javascript no CakePHP 4 
 
 > Sem o JS Helper nessa nova versão do CakePHP a solução escolhida foi copiar o JS Helper da versão antiga e adaptar o código para poder funcionar com o CakePHP 4.
@@ -580,6 +596,211 @@ public function buildRules(RulesChecker $rules): RulesChecker
 
 > Na documentação há outros exemplos de rule além do isUnique, mas é possível criar também outras regras de negócio próprias. Ao rodar os testes agora *( .\vendor\bin\phpunit .\tests\TestCase\Model\Table\GenerosTableTest.php )*, deverá dar certo.
 
+----
+
+### Realizando autenticação e autorização
+
+Os controles de autenticação e autorização antes eram feitos pelos componentes Auth e ACL, porém não existem mais na nova versão do framework
+
+#### A Autenticação
+
+> É realizada através do plugin do autentication. Para iniciar, vamos seguir a documentação disponível em https://book.cakephp.org/authentication/2/en/index.html e instalar o plugin utilizando o composer
+> Para isto, estando no PowerShell no diretório do projeto, especifique a versão do php e o caminho do cmposer e digite o comando para realizar a instalação 
+
+```php
+php7 C:\xampp\php7\composer.phar require "cakephp/authentication:^2.0"
+```
+
+> No arquivo **src > Application.php** incluir o plugin conforme especifica a documentação
+
+```php
+$this->addPlugin('Authentication');
+```
+
+> Ainda no arquivo **src > Application.php** é necessário inserir as dependências
+
+```php
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Identifier\IdentifierInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
+use Cake\Http\MiddlewareQueue;
+use Cake\Routing\Router;
+use Psr\Http\Message\ServerRequestInterface;
+```
+
+> E inserir a classe de interface
+
+antes
+
+```php
+class Application extends BaseApplication
+```
+
+depois
+
+```php
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
+```
+
+> Adicionar o middleware de autenticação dentro do método middleware já existente no arquivo **src > Application.php**
+
+```php
+->add(new AuthenticationMiddleware($this));
+```
+
+> Depois é necessário criar o método getAuthentication, porém não utilizaremos o padrão da documentação sobre Autenticação neste exemplo. Em lugar disto, [vamos na documentação do Framework sobre CMS](http://book.cakephp.org/4/en/tutorials-and-examples/cms/authentication.html#adding-login "vamos na documentação do Framework sobre CMS") e copiaremos o método getAuthenticationService, colando no arquivo **src > Application.php**
+
+```php
+public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
+{
+    $authenticationService = new AuthenticationService([
+        'unauthenticatedRedirect' => '/users/login',
+        'queryParam' => 'redirect',
+    ]);
+
+    // Load identifiers, ensure we check email and password fields
+    $authenticationService->loadIdentifier('Authentication.Password', [
+        'fields' => [
+            'username' => 'email',
+            'password' => 'password',
+        ]
+    ]);
+
+    // Load the authenticators, you want session first
+    $authenticationService->loadAuthenticator('Authentication.Session');
+    // Configure form data check to pick email and password
+    $authenticationService->loadAuthenticator('Authentication.Form', [
+        'fields' => [
+            'username' => 'email',
+            'password' => 'password',
+        ],
+        'loginUrl' => '/users/login',
+    ]);
+
+    return $authenticationService;
+}
+```
+
+> Precisaremos alterar os parâmetros de configuração, informando a URL de login na propriedade *'unauthenticatedRedirect'* e alterando os nomes dos fields da seguinte forma
+
+```php
+public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
+{
+    $authenticationService = new AuthenticationService([
+        'unauthenticatedRedirect' => '/cinema4/usuarios/login',
+        'queryParam' => 'redirect',
+    ]);
+
+    // Load identifiers, ensure we check email and password fields
+    $authenticationService->loadIdentifier('Authentication.Password', [
+        'fields' => [
+            'username' => 'login',
+            'password' => 'senha',
+        ]
+    ]);
+
+    // Load the authenticators, you want session first
+    $authenticationService->loadAuthenticator('Authentication.Session');
+    // Configure form data check to pick email and password
+    $authenticationService->loadAuthenticator('Authentication.Form', [
+        'fields' => [
+            'username' => 'login',
+            'password' => 'senha',
+        ],
+        'loginUrl' => '/cinema4/usuarios/login',
+    ]);
+
+    return $authenticationService;
+}
+```
+
+> Por padrão, o plugin de autenticação tentará validar as informações usando o table *'users'*, porém, como nesta aplicação utilizamos o table *'usuarios'* precisamos informar a aplicação através de um resolver, dentro do método getAuthenticationService
+
+```php
+$authenticationService->loadIdentifier('Authentication.Password', [
+    'fields' => [
+        'username' => 'login',
+        'password' => 'senha',
+    ],
+    'resolver' => [
+        'className' => 'Authentication.Orm',
+        'userModel' => 'Usuarios'
+    ]
+]);
+```
+
+No arquivo **src > Controller > AppController.php** iremos adicionar o componente do plugin com o padrão nomeDoPlugin.nomeDoComponente
+
+```php
+$this->loadComponent('Authentication.Authentication');
+```
+
+Dentro de **src > Controller > UsuariosController.php** é necessário configurar o login
+> Copiar o método *beforeFilter* do arquivo *UsuariosController* do projeto antigo para o projeto novo. Ele deve permitir que as ações de login / logout permaneçam sem validação de autenticação, dessa forma, qualquer usuário pode acessar esse médoto, que não vai autenticar. Isto anteriormente era feito pelo *$this->Auth->allow()* porém nesta versão isso muda, e também a assinatura do método
+
+antes
+```php
+public function beforeFilter() {
+    $this->Auth->allow(array('logout','login'));            
+    parent::beforeFilter();
+} 
+```
+
+agora
+```php
+public function beforeFilter(\Cake\Event\EventInterface $event) {
+    parent::beforeFilter();
+    $this->Authentication->allowUnauthenticated(array('logout','login'));            
+}
+```
+
+> Copiar o login e logout do projeto antigo
+
+antes
+
+```php
+public function login() {
+    $this->layout = 'login';
+    if ($this->request->is('post')) {
+        if ($this->Auth->login()) {
+            return $this->redirect($this->Auth->redirectUrl());
+        }
+        $this->Flash->bootstrap('Usuário ou senha incorretos', array('key' => 'danger'));
+    }        
+}
+
+public function logout() {
+    $this->Auth->logout();
+    $this->redirect('/login');
+}
+```
+
+- O *$this->layout* será substituído por *$this->viewBuilder()->setLayout('login')*
+
+agora
+
+```php
+public function login() {
+    $this->viewBuilder()->setLayout('login');
+    $this->request->allowMethod(['get', 'post']);
+    $result = $this->Authentication->getResult();        
+    if ($result->isValid()) {
+        $target = $this->Authentication->getLoginRedirect() ?? '/';
+        return $this->redirect($target);
+    }
+    if ($this->request->is('post') && !$result->isValid())
+    $this->Flash->bootstrap('Usuário ou senha incorretos', array('key' => 'danger'));
+            
+}
+
+public function logout() {
+    $this->Authentication->logout();
+    $this->redirect('/login');
+}
+```
+
 ## Possíveis erros
 
 #### 1
@@ -601,6 +822,9 @@ public function buildRules(RulesChecker $rules): RulesChecker
 
 **Correção:** 
 - Criar banco de dados chamado 'test_cinema' no PHPMyAdmin. Não é necessário criar nenhuma tabela, ao executar os testes o framework se encarregará da criação
+
+#### 4 
+> VSCode não reconhecer código do PHP7, como o operado de coalescência, por exemplo, que retorna seu primeiro operando se estiver definido e não NULL. Caso contrário, ele retornará seu segundo operando: **$target = $this->Authentication->getLoginRedirect() ?? '/';**
 
 
 # CakePHP Application Skeleton
