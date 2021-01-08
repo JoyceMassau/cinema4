@@ -783,7 +783,7 @@ public function logout() {
 }
 ```
 
-> Antes de tentar efetuar login, no arquivo **src > Controller > UsuariosController.php** e permitir provisóriamente acessar os arquivos de 'index' e edit para poder alterar um usuário existente e alterar sua senha, dentro do método beforeFilter 
+> Antes de tentar efetuar login, no arquivo **src > Controller > UsuariosController.php** e permitir provisóriamente acessar os arquivos de 'index' e 'edit' para poder alterar um usuário existente e alterar sua senha, dentro do método beforeFilter 
 
 antes
 
@@ -808,6 +808,20 @@ protected function _setSenha(string $senha)
 ```
 
 > E entramos na tela de usuários sem a autenticação, em http://localhost:8070/cinema4/usuarios/ e iremos alterar a senha de um usuário. Ao tentar gravar a informação pode dar erro de DefaultPasswordHasher, devidamente explicado no tópico "Possíveis erros" questão 6
+
+> Após alterar a senha, remover no arquivo **src > Controller > UsuariosController.php** a a permissão de acessar os arquivos de 'index' e 'edit'
+
+antes
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login', 'index', 'edit'));
+```
+
+depois
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login'));
+```
 
 
 ## Possíveis erros
