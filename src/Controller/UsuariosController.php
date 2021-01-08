@@ -11,6 +11,39 @@ namespace App\Controller;
  */
 class UsuariosController extends AppController
 {
+    
+    public $paginate = [
+        'fields' => ['id', 'nome'],
+        'conditions' => ['Usuarios.deleted IS NULL'],
+        'limit' => 10,
+        'order' => ['nome' => 'asc']   
+    ];
+
+    public function beforeFilter(\Cake\Event\EventInterface $event) {
+        parent::beforeFilter($event);
+        $this->Authentication->allowUnauthenticated(array('logout','login'));            
+    }
+
+    public function setPaginateConditions() {
+        $nome = '';
+        if ($this->request->is('post')) {
+            $nome = $this->request->getData('nome');
+            $this->request->getSession()->write('nome', $nome);
+        } else {
+            $nome = $this->request->getSession()->read('nome');
+        }
+        if (!empty($nome)) {
+            $this->paginate['conditions']['Usuarios.nome LIKE'] = '%' . trim($nome) . '%';
+        }
+    }
+
+    public function getEditEntity($id) {        
+        $fields = ['id', 'nome', 'login'];
+        $contain = [];
+        
+        return $this->Usuarios->get($id, compact('fields', 'contain'));
+    }
+
     /**
      * Index method
      *
@@ -101,5 +134,23 @@ class UsuariosController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function login() {
+        $this->viewBuilder()->setLayout('login');
+        $this->request->allowMethod(['get', 'post']);
+        $result = $this->Authentication->getResult();        
+        if ($result->isValid()) {
+            $target = $this->Authentication->getLoginRedirect() ?? '/';
+            return $this->redirect($target);
+        }
+        if ($this->request->is('post') && !$result->isValid()) {
+            $this->Flash->bootstrap('Usuário ou senha incorretos', array('key' => 'danger'));
+        }                
+    }
+
+    public function logout() {
+        $this->Authentication->logout();
+        $this->redirect('/');
     }
 }

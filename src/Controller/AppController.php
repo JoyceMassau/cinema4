@@ -43,6 +43,7 @@ class AppController extends Controller
 
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
+        $this->loadComponent('Authentication.Authentication');
         $this->viewBuilder()->setLayout('bootstrap');
         $this->viewBuilder()->setHelpers(['Js']); //, 'Pdf.Report'
 

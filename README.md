@@ -323,6 +323,22 @@ agora
 $editLink = $this->Html->link('Alterar', ['action' => 'edit', $genero->id], array('update' => '#content'));
 ```
 
+#### Mudando rota do App
+> Por padrão o projeto aponta como página inicial o *pages* em **config > routes.php**
+
+antes
+
+```php
+$builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+$builder->connect('/pages/*', 'Pages::display');
+```
+
+agora
+
+```php
+$builder->connect('/', ['controller' => 'Generos', 'action' => 'index']);
+```
+
 #### Como usar javascript no CakePHP 4 
 
 > Sem o JS Helper nessa nova versão do CakePHP a solução escolhida foi copiar o JS Helper da versão antiga e adaptar o código para poder funcionar com o CakePHP 4.
@@ -340,26 +356,8 @@ $this->viewBuilder()->setLayout('bootstrap');
 $this->viewBuilder()->setHelpers(['Js', 'Pdf.Report']);
 ```
 
-> Para carregar um plugin, seguimos a documentação https://book.cakephp.org/4/en/plugins.html#loading-a-plugin, damos git clone do repositório Pdf dentro do diretório **plugin** do projeto e o repositório Make-Pdf dentro do diretório **Make-Pdf**
-> Com o composer, adicionaremos o caminho completo para o plugin na seção do autoload. Iremos alterar o composer.json, adicionando uma nova nova dependência
-
-```json
-"autoload": {
-        "psr-4": {
-            "App\\": "src/",
-            "Pdf\\": "./plugins/Pdf/scr",            
-            "Pdf\\MakePdf\\": "Vendor/make-pdf/lib"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "App\\Test\\": "tests/",
-            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/",
-            "Pdf\\": "./plugins/Pdf/scr",            
-            "Pdf\\MakePdf\\": "Vendor/make-pdf/lib"
-        }
-    },
-```
+> Para carregar um plugin, seguimos a documentação https://book.cakephp.org/4/en/plugins.html#loading-a-plugin, e inserimos o zip do repositório Pdf na versão 4 dentro do diretório **plugin** do projeto 
+> Dentro do diretório Pdf crie um diretório chamado *vendor" e dê git clone no repositório Make-Pdf
 
 > Para dar restart no Composer, estando na raiz do diretório do projeto, dê 
 php7 C:\xampp\php7\composer.phar dumpautoload, no PowerShell
@@ -580,6 +578,255 @@ public function buildRules(RulesChecker $rules): RulesChecker
 
 > Na documentação há outros exemplos de rule além do isUnique, mas é possível criar também outras regras de negócio próprias. Ao rodar os testes agora *( .\vendor\bin\phpunit .\tests\TestCase\Model\Table\GenerosTableTest.php )*, deverá dar certo.
 
+----
+
+### Realizando autenticação e autorização
+
+Os controles de autenticação e autorização antes eram feitos pelos componentes Auth e ACL, porém não existem mais na nova versão do framework
+
+#### A Autenticação
+
+> É realizada através do plugin do autentication. Para iniciar, vamos seguir a documentação disponível em https://book.cakephp.org/authentication/2/en/index.html e instalar o plugin utilizando o composer
+> Para isto, estando no PowerShell no diretório do projeto, especifique a versão do php e o caminho do cmposer e digite o comando para realizar a instalação 
+
+```php
+php7 C:\xampp\php7\composer.phar require "cakephp/authentication:^2.0"
+```
+
+> No arquivo **src > Application.php** incluir o plugin conforme especifica a documentação
+
+```php
+$this->addPlugin('Authentication');
+```
+
+> Ainda no arquivo **src > Application.php** é necessário inserir as dependências
+
+```php
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Identifier\IdentifierInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
+use Cake\Http\MiddlewareQueue;
+use Cake\Routing\Router;
+use Psr\Http\Message\ServerRequestInterface;
+```
+
+> E inserir a classe de interface
+
+antes
+
+```php
+class Application extends BaseApplication
+```
+
+depois
+
+```php
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
+```
+
+> Adicionar o middleware de autenticação dentro do método middleware já existente no arquivo **src > Application.php**
+
+```php
+->add(new AuthenticationMiddleware($this));
+```
+
+> Depois é necessário criar o método getAuthentication, porém não utilizaremos o padrão da documentação sobre Autenticação neste exemplo. Em lugar disto, [vamos na documentação do Framework sobre CMS](http://book.cakephp.org/4/en/tutorials-and-examples/cms/authentication.html#adding-login "vamos na documentação do Framework sobre CMS") e copiaremos o método getAuthenticationService, colando no arquivo **src > Application.php**
+
+```php
+public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
+{
+    $authenticationService = new AuthenticationService([
+        'unauthenticatedRedirect' => '/users/login',
+        'queryParam' => 'redirect',
+    ]);
+
+    // Load identifiers, ensure we check email and password fields
+    $authenticationService->loadIdentifier('Authentication.Password', [
+        'fields' => [
+            'username' => 'email',
+            'password' => 'password',
+        ]
+    ]);
+
+    // Load the authenticators, you want session first
+    $authenticationService->loadAuthenticator('Authentication.Session');
+    // Configure form data check to pick email and password
+    $authenticationService->loadAuthenticator('Authentication.Form', [
+        'fields' => [
+            'username' => 'email',
+            'password' => 'password',
+        ],
+        'loginUrl' => '/users/login',
+    ]);
+
+    return $authenticationService;
+}
+```
+
+> Precisaremos alterar os parâmetros de configuração, informando a URL de login na propriedade *'unauthenticatedRedirect'* e alterando os nomes dos fields da seguinte forma
+
+```php
+public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
+{
+    $authenticationService = new AuthenticationService([
+        'unauthenticatedRedirect' => '/cinema4/usuarios/login',
+        'queryParam' => 'redirect',
+    ]);
+
+    // Load identifiers, ensure we check email and password fields
+    $authenticationService->loadIdentifier('Authentication.Password', [
+        'fields' => [
+            'username' => 'login',
+            'password' => 'senha',
+        ]
+    ]);
+
+    // Load the authenticators, you want session first
+    $authenticationService->loadAuthenticator('Authentication.Session');
+    // Configure form data check to pick email and password
+    $authenticationService->loadAuthenticator('Authentication.Form', [
+        'fields' => [
+            'username' => 'login',
+            'password' => 'senha',
+        ],
+        'loginUrl' => '/cinema4/usuarios/login',
+    ]);
+
+    return $authenticationService;
+}
+```
+
+> Por padrão, o plugin de autenticação tentará validar as informações usando o table *'users'*, porém, como nesta aplicação utilizamos o table *'usuarios'* precisamos informar a aplicação através de um resolver, dentro do método getAuthenticationService
+
+```php
+$authenticationService->loadIdentifier('Authentication.Password', [
+    'fields' => [
+        'username' => 'login',
+        'password' => 'senha',
+    ],
+    'resolver' => [
+        'className' => 'Authentication.Orm',
+        'userModel' => 'Usuarios'
+    ]
+]);
+```
+
+No arquivo **src > Controller > AppController.php** iremos adicionar o componente do plugin com o padrão nomeDoPlugin.nomeDoComponente
+
+```php
+$this->loadComponent('Authentication.Authentication');
+```
+
+Dentro de **src > Controller > UsuariosController.php** é necessário configurar o login
+> Copiar o método *beforeFilter* do arquivo *UsuariosController* do projeto antigo para o projeto novo. Ele deve permitir que as ações de login / logout permaneçam sem validação de autenticação, dessa forma, qualquer usuário pode acessar esse médoto, que não vai autenticar. Isto anteriormente era feito pelo *$this->Auth->allow()* porém nesta versão isso muda, e também a assinatura do método
+
+antes
+```php
+public function beforeFilter() {
+    $this->Auth->allow(array('logout','login'));            
+    parent::beforeFilter();
+} 
+```
+
+agora
+```php
+public function beforeFilter(\Cake\Event\EventInterface $event) {
+    parent::beforeFilter();
+    $this->Authentication->allowUnauthenticated(array('logout','login'));            
+}
+```
+
+> Copiar o login e logout do projeto antigo
+
+antes
+
+```php
+public function login() {
+    $this->layout = 'login';
+    if ($this->request->is('post')) {
+        if ($this->Auth->login()) {
+            return $this->redirect($this->Auth->redirectUrl());
+        }
+        $this->Flash->bootstrap('Usuário ou senha incorretos', array('key' => 'danger'));
+    }        
+}
+
+public function logout() {
+    $this->Auth->logout();
+    $this->redirect('/login');
+}
+```
+
+- O *$this->layout* será substituído por *$this->viewBuilder()->setLayout('login')*
+
+agora
+
+```php
+public function login() {
+    $this->viewBuilder()->setLayout('login');
+    $this->request->allowMethod(['get', 'post']);
+    $result = $this->Authentication->getResult();        
+    if ($result->isValid()) {
+        $target = $this->Authentication->getLoginRedirect() ?? '/';
+        return $this->redirect($target);
+    }
+    if ($this->request->is('post') && !$result->isValid())
+    $this->Flash->bootstrap('Usuário ou senha incorretos', array('key' => 'danger'));
+            
+}
+
+public function logout() {
+    $this->Authentication->logout();
+    $this->redirect('/login');
+}
+```
+
+> Antes de tentar efetuar login, no arquivo **src > Controller > UsuariosController.php** e permitir provisóriamente acessar os arquivos de 'index' e 'edit' para poder alterar um usuário existente e alterar sua senha, dentro do método beforeFilter 
+
+antes
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login'));
+```
+
+depois 
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login', 'index', 'edit'));
+```
+
+> No model de usuário, em **src > Model > Entity > Usuario.php** precisamos incluir um método chamado setSenha para criar um hash da senha criptografada
+
+```php
+protected function _setSenha(string $senha)
+{
+    $hasher = new DefaultPasswordHasher();
+    return $hasher->hash($senha);
+}
+```
+
+> E entramos na tela de usuários sem a autenticação, em http://localhost:8070/cinema4/usuarios/ e iremos alterar a senha de um usuário. Ao tentar gravar a informação pode dar erro de DefaultPasswordHasher, devidamente explicado no tópico "Possíveis erros" questão 6
+
+> Após alterar a senha, remover no arquivo **src > Controller > UsuariosController.php** a a permissão de acessar os arquivos de 'index' e 'edit'
+
+antes
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login', 'index', 'edit'));
+```
+
+depois
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login'));
+```
+
+#### A Autorização
+
+Parei em 19:01 do vídeo https://youtu.be/490FRuw_pNs?t=1141
+
 ## Possíveis erros
 
 #### 1
@@ -602,57 +849,24 @@ public function buildRules(RulesChecker $rules): RulesChecker
 **Correção:** 
 - Criar banco de dados chamado 'test_cinema' no PHPMyAdmin. Não é necessário criar nenhuma tabela, ao executar os testes o framework se encarregará da criação
 
+#### 4 
+- VSCode não reconhecer código do PHP7, como o operado de coalescência, por exemplo, que retorna seu primeiro operando se estiver definido e não NULL. Caso contrário, ele retornará seu segundo operando: **$target = $this->Authentication->getLoginRedirect() ?? '/';**
 
-# CakePHP Application Skeleton
+#### 5
+> "Missing Template
+Cake\View\Exception\MissingTemplateException - Error The view for UsuariosController::login() was not found."
 
-[![Build Status](https://img.shields.io/github/workflow/status/cakephp/app/CakePHP%20App%20CI/master?style=flat-square)](https://github.com/cakephp/app/actions)
-[![Total Downloads](https://img.shields.io/packagist/dt/cakephp/app.svg?style=flat-square)](https://packagist.org/packages/cakephp/app)
-[![PHPStan](https://img.shields.io/badge/PHPStan-level%207-brightgreen.svg?style=flat-square)](https://github.com/phpstan/phpstan)
+**Correção:**
+- No diretório **templates > Usuarios** lembre-se de criar um arquivo chamado login.php, não mantendo apenas os arquivos padrão criados pelo CRUD. Utilize o antigo .Ctp de login do projeto antigo com as devidas modificações
 
-A skeleton for creating applications with [CakePHP](https://cakephp.org) 4.x.
 
-The framework source code can be found here: [cakephp/cakephp](https://github.com/cakephp/cakephp).
+#### 6 
+> Class 'App\Model\Entity\DefaultPasswordHasher' not found
+Error
 
-## Installation
+**Correção:**
+- No arquivo **src > Model > Entity > Usuario.php** inserir abaixo da diretiva *use Cake\ORM\Entity;* a seguinte linha
 
-1. Download [Composer](https://getcomposer.org/doc/00-intro.md) or update `composer self-update`.
-2. Run `php composer.phar create-project --prefer-dist cakephp/app [app_name]`.
-
-If Composer is installed globally, run
-
-```bash
-composer create-project --prefer-dist cakephp/app
+```php
+use Authentication\PasswordHasher\DefaultPasswordHasher;
 ```
-
-In case you want to use a custom app dir name (e.g. `/myapp/`):
-
-```bash
-composer create-project --prefer-dist cakephp/app myapp
-```
-
-You can now either use your machine's webserver to view the default home page, or start
-up the built-in webserver with:
-
-```bash
-bin/cake server -p 8765
-```
-
-Then visit `http://localhost:8765` to see the welcome page.
-
-## Update
-
-Since this skeleton is a starting point for your application and various files
-would have been modified as per your needs, there isn't a way to provide
-automated upgrades, so you have to do any updates manually.
-
-## Configuration
-
-Read and edit the environment specific `config/app_local.php` and setup the 
-`'Datasources'` and any other configuration relevant for your application.
-Other environment agnostic settings can be changed in `config/app.php`.
-
-## Layout
-
-The app skeleton uses [Milligram](https://milligram.io/) (v1.3) minimalist CSS
-framework by default. You can, however, replace it with any other library or
-custom styles.
