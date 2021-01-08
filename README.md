@@ -356,26 +356,8 @@ $this->viewBuilder()->setLayout('bootstrap');
 $this->viewBuilder()->setHelpers(['Js', 'Pdf.Report']);
 ```
 
-> Para carregar um plugin, seguimos a documentação https://book.cakephp.org/4/en/plugins.html#loading-a-plugin, damos git clone do repositório Pdf dentro do diretório **plugin** do projeto e o repositório Make-Pdf dentro do diretório **Make-Pdf**
-> Com o composer, adicionaremos o caminho completo para o plugin na seção do autoload. Iremos alterar o composer.json, adicionando uma nova nova dependência
-
-```json
-"autoload": {
-        "psr-4": {
-            "App\\": "src/",
-            "Pdf\\": "./plugins/Pdf/scr",            
-            "Pdf\\MakePdf\\": "Vendor/make-pdf/lib"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "App\\Test\\": "tests/",
-            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/",
-            "Pdf\\": "./plugins/Pdf/scr",            
-            "Pdf\\MakePdf\\": "Vendor/make-pdf/lib"
-        }
-    },
-```
+> Para carregar um plugin, seguimos a documentação https://book.cakephp.org/4/en/plugins.html#loading-a-plugin, e inserimos o zip do repositório Pdf na versão 4 dentro do diretório **plugin** do projeto 
+> Dentro do diretório Pdf crie um diretório chamado *vendor" e dê git clone no repositório Make-Pdf
 
 > Para dar restart no Composer, estando na raiz do diretório do projeto, dê 
 php7 C:\xampp\php7\composer.phar dumpautoload, no PowerShell
@@ -801,6 +783,7 @@ public function logout() {
 }
 ```
 
+
 ## Possíveis erros
 
 #### 1
@@ -826,6 +809,12 @@ public function logout() {
 #### 4 
 > VSCode não reconhecer código do PHP7, como o operado de coalescência, por exemplo, que retorna seu primeiro operando se estiver definido e não NULL. Caso contrário, ele retornará seu segundo operando: **$target = $this->Authentication->getLoginRedirect() ?? '/';**
 
+#### 5
+> "Missing Template
+Cake\View\Exception\MissingTemplateException - Error The view for UsuariosController::login() was not found."
+
+**Correção:**
+> No diretório **templates > Usuarios** lembre-se de criar um arquivo chamado login.php, não mantendo apenas os arquivos padrão criados pelo CRUD. Utilize o antigo .Ctp de login do projeto antigo com as devidas modificações
 
 # CakePHP Application Skeleton
 
