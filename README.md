@@ -190,6 +190,7 @@ $filtro .= $this->Js->submit('Filtrar', array('class' => 'btn btn-primary mb-2',
 ```
 
 agora
+
 ```php
 $filtro .= $this->Form->submit('Filtrar', array('class' => 'btn btn-primary mb-2', 'div' => false, 'update' => '#content'));
 ```
