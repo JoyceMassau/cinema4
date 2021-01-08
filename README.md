@@ -783,6 +783,32 @@ public function logout() {
 }
 ```
 
+> Antes de tentar efetuar login, no arquivo **src > Controller > UsuariosController.php** e permitir provisóriamente acessar os arquivos de 'index' e edit para poder alterar um usuário existente e alterar sua senha, dentro do método beforeFilter 
+
+antes
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login'));
+```
+
+depois 
+
+```php
+$this->Authentication->allowUnauthenticated(array('logout','login', 'index', 'edit'));
+```
+
+> No model de usuário, em **src > Model > Entity > Usuario.php** precisamos incluir um método chamado setSenha para criar um hash da senha criptografada
+
+```php
+protected function _setSenha(string $senha)
+{
+    $hasher = new DefaultPasswordHasher();
+    return $hasher->hash($senha);
+}
+```
+
+> E entramos na tela de usuários sem a autenticação, em http://localhost:8070/cinema4/usuarios/ e iremos alterar a senha de um usuário. Ao tentar gravar a informação pode dar erro de DefaultPasswordHasher, devidamente explicado no tópico "Possíveis erros" questão 6
+
 
 ## Possíveis erros
 
@@ -807,14 +833,27 @@ public function logout() {
 - Criar banco de dados chamado 'test_cinema' no PHPMyAdmin. Não é necessário criar nenhuma tabela, ao executar os testes o framework se encarregará da criação
 
 #### 4 
-> VSCode não reconhecer código do PHP7, como o operado de coalescência, por exemplo, que retorna seu primeiro operando se estiver definido e não NULL. Caso contrário, ele retornará seu segundo operando: **$target = $this->Authentication->getLoginRedirect() ?? '/';**
+- VSCode não reconhecer código do PHP7, como o operado de coalescência, por exemplo, que retorna seu primeiro operando se estiver definido e não NULL. Caso contrário, ele retornará seu segundo operando: **$target = $this->Authentication->getLoginRedirect() ?? '/';**
 
 #### 5
 > "Missing Template
 Cake\View\Exception\MissingTemplateException - Error The view for UsuariosController::login() was not found."
 
 **Correção:**
-> No diretório **templates > Usuarios** lembre-se de criar um arquivo chamado login.php, não mantendo apenas os arquivos padrão criados pelo CRUD. Utilize o antigo .Ctp de login do projeto antigo com as devidas modificações
+- No diretório **templates > Usuarios** lembre-se de criar um arquivo chamado login.php, não mantendo apenas os arquivos padrão criados pelo CRUD. Utilize o antigo .Ctp de login do projeto antigo com as devidas modificações
+
+
+#### 6 
+> Class 'App\Model\Entity\DefaultPasswordHasher' not found
+Error
+
+**Correção:**
+- No arquivo **src > Model > Entity > Usuario.php** inserir abaixo da diretiva *use Cake\ORM\Entity;* a seguinte linha
+
+```php
+use Authentication\PasswordHasher\DefaultPasswordHasher;
+```
+
 
 # CakePHP Application Skeleton
 
