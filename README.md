@@ -823,6 +823,9 @@ depois
 $this->Authentication->allowUnauthenticated(array('logout','login'));
 ```
 
+#### A Autorização
+
+Parei em 19:01 do vídeo https://youtu.be/490FRuw_pNs?t=1141
 
 ## Possíveis erros
 
