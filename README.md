@@ -181,6 +181,20 @@ agora
 $filtro = $this->element('formCreate', ['options' => ['class' => 'form-inline']]);
 ```
 
+> Para alterar o botão de submit devemos substituir o *Js* pelo *Form*
+
+antes
+
+```php
+$filtro .= $this->Js->submit('Filtrar', array('class' => 'btn btn-primary mb-2', 'div' => false, 'update' => '#content'));
+```
+
+agora
+
+```php
+$filtro .= $this->Form->submit('Filtrar', array('class' => 'btn btn-primary mb-2', 'div' => false, 'update' => '#content'));
+```
+
 > Para alterar o controle de paginação
 
 antes

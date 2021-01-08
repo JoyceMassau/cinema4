@@ -4,7 +4,7 @@ $reportButton = $this->Html->link('Imprimir', ['action' => 'report'], array('cla
 
 $filtro = $this->element('formCreate', ['options' => ['class' => 'form-inline']]);
 $filtro .= $this->fetch('searchFields'); 
-$filtro .= $this->Js->submit('Filtrar', array('class' => 'btn btn-primary mb-2', 'div' => false, 'update' => '#content'));
+$filtro .= $this->Form->submit('Filtrar', array('class' => 'btn btn-primary mb-2', 'div' => false, 'update' => '#content'));
 $filtro .= $this->Form->end();
 
 $filtroBar = $this->Html->div('row mb-3 mt-3', 

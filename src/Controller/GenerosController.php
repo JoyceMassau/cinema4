@@ -19,7 +19,6 @@ class GenerosController extends AppController
             $this->request->getSession()->write('nome', $nome);
         } else {
             $nome = $this->request->getSession()->read('nome');
-            $this->request->data('nome', $nome);
         }
         if (!empty($nome)) {
             $this->paginate['conditions']['nome LIKE'] = '%' . trim($nome) . '%';
